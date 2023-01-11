@@ -23,7 +23,16 @@ class ProductService implements IProductService
      */
     public function getAll(): array
     {
-        return $this->productRepository->findAll();
+        return $this->productRepository->findBy(['archived' => false]);
+    }
+
+    /**
+     * get all the "deleted" product
+     * @return array the list of all "deleted" product
+     */
+    public function getArchived(): array
+    {
+        return $this->productRepository->findBy(['archived' => true]);
     }
 
     /**
@@ -40,6 +49,7 @@ class ProductService implements IProductService
         $product->setPrice(Util::tryGet($raw, 'price'));
         $product->setPlateforme(Util::tryGet($raw, 'plateforme'));
         $product->setImage(Util::tryGet($raw, 'image'));
+        $product->setArvhived(Util::tryGet($raw, 'archived', false));
 
         $this->productRepository->save($product, true);
         return $product;
@@ -69,19 +79,35 @@ class ProductService implements IProductService
     {
         $product = $this->productRepository->find($id);
         if($product != null) {
-            $product->setName(Util::tryGet($raw, 'name') ?? $product->getName());
-            $product->setCodeProduct(Util::tryGet($raw, 'code_product') ?? $product->getCodeProduct());
-            $product->setPrice(Util::tryGet($raw, 'price') ?? $product->getPrice());
-            $product->setPlateforme(Util::tryGet($raw, 'plateforme') ?? $product->getPlateforme());
-            $product->setImage(Util::tryGet($raw, 'image') ??$product->getImage());
+            $product->setName(Util::tryGet($raw, 'name', $product->getName()));
+            $product->setCodeProduct(Util::tryGet($raw, 'code_product', $product->getCodeProduct()));
+            $product->setPrice(Util::tryGet($raw, 'price', $product->getPrice()));
+            $product->setPlateforme(Util::tryGet($raw, 'plateforme', $product->getPlateforme()));
+            $product->setImage(Util::tryGet($raw, 'image', $product->getImage()));
+
+            if($product->isArvhived()) {
+                $product->setArvhived(Util::tryGet($raw, 'archived', $product->isArvhived()));
+            }
 
             $this->productRepository->save($product, true);
             return $product;
         } else throw new Exception("no product found with that id");
     }
 
+    /**
+     * delete the product
+     * @param string $id the id of the product to delete
+     * @return Product the product deleted
+     * @throws Exception delete failed, or no product found
+     */
     public function delete(string $id): Product
     {
-        throw new FeatureNotImplemented();
+        $product = $this->productRepository->find($id);
+        if($product != null) {
+            $product->setArvhived(true);
+
+            $this->productRepository->save($product, true);
+            return $product;
+        } else throw new Exception("no product found with that id");
     }
 }

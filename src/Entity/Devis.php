@@ -6,9 +6,10 @@ use App\Repository\DevisRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 #[ORM\Entity(repositoryClass: DevisRepository::class)]
-class Devis
+class Devis implements JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -116,5 +117,10 @@ class Devis
         }
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return array();
     }
 }

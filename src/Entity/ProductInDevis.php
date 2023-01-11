@@ -4,9 +4,10 @@ namespace App\Entity;
 
 use App\Repository\ProductInDevisRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 #[ORM\Entity(repositoryClass: ProductInDevisRepository::class)]
-class ProductInDevis
+class ProductInDevis implements JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -61,5 +62,10 @@ class ProductInDevis
         $this->devis = $devis;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return array();
     }
 }

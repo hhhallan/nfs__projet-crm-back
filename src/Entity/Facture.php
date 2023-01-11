@@ -6,9 +6,10 @@ use App\Repository\FactureRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 #[ORM\Entity(repositoryClass: FactureRepository::class)]
-class Facture
+class Facture implements JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -131,5 +132,9 @@ class Facture
         }
 
         return $this;
+    }
+    public function jsonSerialize(): array
+    {
+        return array();
     }
 }

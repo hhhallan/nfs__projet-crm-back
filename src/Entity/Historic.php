@@ -4,10 +4,11 @@ namespace App\Entity;
 
 use App\Repository\HistoryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 use Ramsey\Uuid\Uuid;
 
 #[ORM\Entity(repositoryClass: HistoryRepository::class)]
-class Historic
+class Historic implements JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -62,5 +63,10 @@ class Historic
         $this->target_id = $target_id;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return array();
     }
 }

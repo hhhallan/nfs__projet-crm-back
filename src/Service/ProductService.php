@@ -23,7 +23,7 @@ class ProductService implements IProductService
      */
     public function getAll(): array
     {
-        return $this->productRepository->findBy(['archived' => false]);
+        return $this->productRepository->findBy(['arvhived' => false]);
     }
 
     /**
@@ -32,7 +32,7 @@ class ProductService implements IProductService
      */
     public function getArchived(): array
     {
-        return $this->productRepository->findBy(['archived' => true]);
+        return $this->productRepository->findBy(['arvhived' => true]);
     }
 
     /**

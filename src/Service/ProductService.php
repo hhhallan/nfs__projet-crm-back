@@ -23,7 +23,7 @@ class ProductService implements IProductService
      */
     public function getAll(): array
     {
-        return $this->productRepository->findBy(['arvhived' => false]);
+        return $this->productRepository->findBy(['archived' => false]);
     }
 
     /**
@@ -32,7 +32,7 @@ class ProductService implements IProductService
      */
     public function getArchived(): array
     {
-        return $this->productRepository->findBy(['arvhived' => true]);
+        return $this->productRepository->findBy(['archived' => true]);
     }
 
     /**
@@ -49,7 +49,7 @@ class ProductService implements IProductService
         $product->setPrice(Util::tryGet($raw, 'price'));
         $product->setPlateforme(Util::tryGet($raw, 'plateforme'));
         $product->setImage(Util::tryGet($raw, 'image'));
-        $product->setArvhived(Util::tryGet($raw, 'archived', false));
+        $product->setArchived(Util::tryGet($raw, 'archived', false));
 
         $this->productRepository->save($product, true);
         return $product;
@@ -64,7 +64,7 @@ class ProductService implements IProductService
     public function read(string $id): Product
     {
         $product = $this->productRepository->find($id);
-        if($product == null) throw new Exception("no product found with that id");
+        if($product == null) throw new Exception("no product found with that id", 404);
         return $product;
     }
 
@@ -85,13 +85,13 @@ class ProductService implements IProductService
             $product->setPlateforme(Util::tryGet($raw, 'plateforme', $product->getPlateforme()));
             $product->setImage(Util::tryGet($raw, 'image', $product->getImage()));
 
-            if($product->isArvhived()) {
-                $product->setArvhived(Util::tryGet($raw, 'archived', $product->isArvhived()));
+            if($product->isArchived()) {
+                $product->setArchived(Util::tryGet($raw, 'archived', $product->isArchived()));
             }
 
             $this->productRepository->save($product, true);
             return $product;
-        } else throw new Exception("no product found with that id");
+        } else throw new Exception("no product found with that id", 404);
     }
 
     /**
@@ -104,10 +104,10 @@ class ProductService implements IProductService
     {
         $product = $this->productRepository->find($id);
         if($product != null) {
-            $product->setArvhived(true);
+            $product->setArchived(true);
 
             $this->productRepository->save($product, true);
             return $product;
-        } else throw new Exception("no product found with that id");
+        } else throw new Exception("no product found with that id", 404);
     }
 }

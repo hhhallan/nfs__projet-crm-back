@@ -7,14 +7,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
+use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product implements JsonSerializable
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: "CUSTOM")]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
+    private UuidInterface|string|null $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $code_product = null;
@@ -38,7 +41,7 @@ class Product implements JsonSerializable
     private Collection $productInFactures;
 
     #[ORM\Column]
-    private ?bool $arvhived = null;
+    private ?bool $archived = null;
 
     public function __construct()
     {
@@ -46,7 +49,7 @@ class Product implements JsonSerializable
         $this->productInFactures = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }
@@ -171,20 +174,27 @@ class Product implements JsonSerializable
         return $this;
     }
 
-    public function isArvhived(): ?bool
+    public function isArchived(): ?bool
     {
-        return $this->arvhived;
+        return $this->archived;
     }
 
-    public function setArvhived(bool $arvhived): self
+    public function setArchived(bool $archived): self
     {
-        $this->arvhived = $arvhived;
+        $this->archived = $archived;
 
         return $this;
     }
 
     public function jsonSerialize(): array
     {
-        return array();
+        return array(
+            'id' => $this->getId(),
+            'code_product' => $this->getCodeProduct(),
+            'name' => $this->getName(),
+            'plateforme' => $this->getPlateforme(),
+            'price' => $this->getPlateforme(),
+            'image' => $this->getImage()
+        );
     }
 }

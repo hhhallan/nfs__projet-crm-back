@@ -5,14 +5,17 @@ namespace App\Entity;
 use App\Repository\ProductInDevisRepository;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
+use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity(repositoryClass: ProductInDevisRepository::class)]
 class ProductInDevis implements JsonSerializable
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: "CUSTOM")]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
+    private UuidInterface|string|null $id = null;
 
     #[ORM\Column]
     private ?int $quantity = null;
@@ -23,7 +26,7 @@ class ProductInDevis implements JsonSerializable
     #[ORM\ManyToOne(inversedBy: 'contents')]
     private ?Devis $devis = null;
 
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }

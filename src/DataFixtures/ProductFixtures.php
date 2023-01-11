@@ -16,7 +16,7 @@ class ProductFixtures extends Fixture
             $product->setName('Elden Ring (2022)')
                 ->setPlateforme($plateforme)
                 ->setCodeProduct('')
-                ->setArvhived(false)
+                ->setArchived(false)
                 ->setPrice($price)
                 ->setImage('https://media.senscritique.com/media/000020907829/300/elden_ring.jpg');
 
@@ -29,7 +29,7 @@ class ProductFixtures extends Fixture
             $product->setName('God of War: Ragnarök (2022)')
                 ->setPlateforme($plateforme)
                 ->setCodeProduct('')
-                ->setArvhived(false)
+                ->setArchived(false)
                 ->setPrice($price)
                 ->setImage('https://media.senscritique.com/media/000020893527/300/god_of_war_ragnarok.jpg');
 
@@ -42,7 +42,7 @@ class ProductFixtures extends Fixture
             $product->setName('Stray (2022)')
                 ->setPlateforme($plateforme)
                 ->setCodeProduct('')
-                ->setArvhived(false)
+                ->setArchived(false)
                 ->setPrice($price)
                 ->setImage('https://media.senscritique.com/media/000020871725/300/stray.jpg');
 
@@ -55,7 +55,7 @@ class ProductFixtures extends Fixture
             $product->setName('Tunic (2022)')
                 ->setPlateforme($plateforme)
                 ->setCodeProduct('')
-                ->setArvhived(false)
+                ->setArchived(false)
                 ->setPrice($price)
                 ->setImage('https://media.senscritique.com/media/000020906038/300/tunic.jpg');
 
@@ -68,7 +68,7 @@ class ProductFixtures extends Fixture
             $product->setName('Horizon: Forbidden West (2022)')
                 ->setPlateforme($plateforme)
                 ->setCodeProduct('')
-                ->setArvhived(false)
+                ->setArchived(false)
                 ->setPrice($price)
                 ->setImage('https://media.senscritique.com/media/000020943582/300/horizon_forbidden_west.jpg');
 
@@ -81,7 +81,7 @@ class ProductFixtures extends Fixture
             $product->setName('Légendes Pokémon : Arceus (2022)')
                 ->setPlateforme($plateforme)
                 ->setCodeProduct('')
-                ->setArvhived(false)
+                ->setArchived(false)
                 ->setPrice($price)
                 ->setImage('https://media.senscritique.com/media/000020607855/300/legendes_pokemon_arceus.jpg');
 
@@ -94,7 +94,7 @@ class ProductFixtures extends Fixture
             $product->setName('A Plague Tale: Requiem (2022)')
                 ->setPlateforme($plateforme)
                 ->setCodeProduct('')
-                ->setArvhived(false)
+                ->setArchived(false)
                 ->setPrice($price)
                 ->setImage('https://media.senscritique.com/media/000020888298/300/a_plague_tale_requiem.jpg');
 

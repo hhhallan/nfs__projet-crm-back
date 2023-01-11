@@ -36,6 +36,9 @@ class Product
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductInFacture::class)]
     private Collection $productInFactures;
 
+    #[ORM\Column]
+    private ?bool $arvhived = null;
+
     public function __construct()
     {
         $this->productInDevis = new ArrayCollection();
@@ -163,6 +166,18 @@ class Product
                 $productInFacture->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isArvhived(): ?bool
+    {
+        return $this->arvhived;
+    }
+
+    public function setArvhived(bool $arvhived): self
+    {
+        $this->arvhived = $arvhived;
 
         return $this;
     }

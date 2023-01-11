@@ -23,6 +23,9 @@ class Historic
     #[ORM\Column(type: 'uuid')]
     private ?Uuid $target_id = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $message = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +63,18 @@ class Historic
     public function setTargetId(Uuid $target_id): self
     {
         $this->target_id = $target_id;
+
+        return $this;
+    }
+
+    public function getMessage(): ?string
+    {
+        return $this->message;
+    }
+
+    public function setMessage(string $message): self
+    {
+        $this->message = $message;
 
         return $this;
     }

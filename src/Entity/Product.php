@@ -193,7 +193,7 @@ class Product implements JsonSerializable
             'code_product' => $this->getCodeProduct(),
             'name' => $this->getName(),
             'plateforme' => $this->getPlateforme(),
-            'price' => $this->getPlateforme(),
+            'price' => $this->getPrice(),
             'image' => $this->getImage()
         );
     }

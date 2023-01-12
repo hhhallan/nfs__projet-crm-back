@@ -97,7 +97,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
@@ -379,5 +379,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
             'firstname' => $this->getFirstname(),
             'lastname' => $this->getLastname()
         );
+    }
+
+    public function jsonSerializeType(): array
+    {
+        $res = $this->jsonSerialize();
+        if (in_array("ROLE_ADMIN", $this->getRoles())) {
+            $res['type'] = 'ADMIN';
+        } else if (in_array("ROLE_COMMERCIAL", $this->getRoles())) {
+            $res['type'] = "COMMERCIAL";
+        } else if($this->isValidate()) {
+            $res['type'] = "CLIENT";
+        }else{
+            $res['type'] = "PROSPECT";
+        }
+        return $res;
+    }
+
+    public function jsonDetails(): array
+    {
+        $res = $this->jsonSerialize();
+        if (count($this->getClients()) > 0) {
+            $res['clients'] = array_map(function ($u) {
+                return $u->jsonSerializeType();
+            }, $this->getClients()->toArray());
+        }
+        if ($this->getCommercial() != null) {
+            $res['commercial'] = $this->getCommercial();
+            $res['devis'] = $this->getDevis()->toArray();
+            $res['factures'] = $this->getFactures()->toArray();
+        }
+        return $res;
     }
 }

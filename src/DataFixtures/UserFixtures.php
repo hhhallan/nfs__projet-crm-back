@@ -55,7 +55,8 @@ class UserFixtures extends Fixture
                 ->setFirstname(explode(' ', $client_name)[0])
                 ->setLastname(explode(' ', $client_name)[1])
                 ->setValidate(true)
-                ->setPassword($this->hasher->hashPassword($client, explode(' ', $client_name)[0] ."2023/"));
+                ->setPassword($this->hasher->hashPassword($client, explode(' ', $client_name)[0] ."2023/"))
+                ->setCommercial($commercials[array_rand($commercials)]);
             $manager->persist($client);
         }
 

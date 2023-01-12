@@ -373,6 +373,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 
     public function jsonSerialize(): array
     {
-        return array();
+        return array(
+            'id' => $this->getId(),
+            'email' => $this->getEmail(),
+            'firstname' => $this->getFirstname(),
+            'lastname' => $this->getLastname()
+        );
     }
 }

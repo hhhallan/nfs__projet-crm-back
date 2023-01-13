@@ -11,9 +11,11 @@ use Exception;
 class ClientService implements IClientService
 {
     private readonly UserRepository $userRepository;
-    public function __construct(UserRepository $userRepository)
+    private readonly AuthService $authService;
+    public function __construct(UserRepository $userRepository, AuthService $authService)
     {
         $this->userRepository = $userRepository;
+        $this->authService = $authService;
     }
 
     public function getAll(): array
@@ -39,10 +41,11 @@ class ClientService implements IClientService
     {
         $newUser = $this->userRepository->findOneBy(['validate' => false, 'id' => $prospectId]);
         if($newUser != null) {
-            $newUser->setValidate(true);
-            $this->userRepository->save($newUser, true);
-            return $newUser;
-            // TODO : envoy mail pour mettre mdp
+            if($this->authService->resetPassword($newUser->getEmail(), false)) {
+                $newUser->setValidate(true);
+                $this->userRepository->save($newUser, true);
+                return $newUser;
+            } else throw new Exception("je sais pas trop pourquoi", 500);
         } else throw new Exception("no prospect found to create client", 404);
     }
 

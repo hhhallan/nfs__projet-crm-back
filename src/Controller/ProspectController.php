@@ -31,7 +31,7 @@ class ProspectController extends AbstractController
         try {
             return $this->json($this->prospectService->getByCommercial($commercialId));
         }catch (Exception $e) {
-            return $this->json(['status' => 'error', 'message' => $e->getMessage()], 400);
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
     }
 
@@ -43,7 +43,7 @@ class ProspectController extends AbstractController
             $prospect = $this->prospectService->create($commercialId, $body);
             return $this->json($prospect->jsonSerializeProspect());
         } catch (Exception $e) {
-            return $this->json(['status' => 'error', 'message' => $e->getMessage()], 400);
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
     }
 
@@ -53,7 +53,7 @@ class ProspectController extends AbstractController
         try {
             return $this->json($this->prospectService->read($id)->jsonSerializeProspect());
         }catch (Exception $e) {
-            return $this->json(['status' => 'error', 'message' => $e->getMessage()], 400);
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
     }
 
@@ -65,7 +65,7 @@ class ProspectController extends AbstractController
             $prospect = $this->prospectService->update($id, $body);
             return $this->json($prospect->jsonSerializeProspect());
         } catch (Exception $e) {
-            return $this->json(['status' => 'error', 'message' => $e->getMessage()], 400);
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
     }
 }

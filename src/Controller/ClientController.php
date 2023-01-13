@@ -31,21 +31,38 @@ class ClientController extends AbstractController
         try {
             return $this->json($this->clientService->getByCommercial($commercialId));
         }catch (Exception $e) {
-            return $this->json(['status' => 'error', 'message' => $e->getMessage()], 400);
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
     }
 
     #[Route('/client/{prospectId}', name: 'app_client_create', methods: 'POST')]
     public function createFromProspect(string $prospectId, Request $request): JsonResponse
     {
-        // TODO : a faire
-        throw new FeatureNotImplemented();
+        try {
+            return $this->json($this->clientService->create($prospectId)->jsonSerializeClient());
+        } catch (Exception $e) {
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
+        }
     }
 
     #[Route('/client/{id}', name: 'app_client_details', methods: 'GET')]
     public function getClientDetails(string $id): JsonResponse
     {
-        // TODO : a faire
-        throw new FeatureNotImplemented();
+        try {
+            return $this->json($this->clientService->read($id)->jsonSerializeClient());
+        }catch (Exception $e) {
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
+        }
+    }
+
+    #[Route('/client/{id}', name: 'app_client_update', methods: 'PUT')]
+    public function updateClient(string $id, Request $request): JsonResponse
+    {
+        try {
+            $body = json_decode($request->getContent(), true);
+            return $this->json($this->clientService->update($id, $body)->jsonSerializeClient());
+        }catch (Exception $e) {
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()],$e->getCode() != 0 ? $e->getCode() : 400);
+        }
     }
 }

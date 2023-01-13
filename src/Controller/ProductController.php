@@ -40,7 +40,7 @@ class ProductController extends AbstractController
         try {
             return $this->json($this->productService->read($id));
         }catch (Exception $e) {
-            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() ?? 400);
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
     }
 
@@ -51,7 +51,7 @@ class ProductController extends AbstractController
             $body = json_decode($request->getContent(), true);
             return $this->json($this->productService->create($body));
         }catch (Exception $e) {
-            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() ?? 400);
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
     }
 
@@ -62,7 +62,7 @@ class ProductController extends AbstractController
             $body = json_decode($request->getContent(), true);
             return $this->json($this->productService->update($id, $body));
         }catch (Exception $e) {
-            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() ?? 400);
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
     }
 
@@ -72,7 +72,7 @@ class ProductController extends AbstractController
         try {
             return $this->json($this->productService->delete($id));
         }catch (Exception $e) {
-            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() ?? 400);
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
     }
 }

@@ -31,7 +31,7 @@ class Devis implements JsonSerializable
     #[ORM\ManyToOne(inversedBy: 'devisCommercial')]
     private ?User $commercial = null;
 
-    #[ORM\OneToMany(mappedBy: 'devis', targetEntity: ProductInDevis::class)]
+    #[ORM\OneToMany(mappedBy: 'devis', targetEntity: ProductInDevis::class, cascade: ['persist', 'remove'])]
     private Collection $contents;
 
     public function __construct()
@@ -131,8 +131,8 @@ class Devis implements JsonSerializable
 
         return array(
             'id' => $this->getId(),
-            'create_at' => $this->getCreateAt(),
-            'last_modification' => $this->getLastModification(),
+            'create_at' => $this->getCreateAt()->format("c"),
+            'last_modification' => $this->getLastModification()->format("c"),
             'client' => $this->getClient()->jsonSerialize(),
             'commercial' => $this->getCommercial()->jsonSerialize(),
             'content' => $contents

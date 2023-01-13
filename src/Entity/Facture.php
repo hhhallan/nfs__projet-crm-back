@@ -34,7 +34,7 @@ class Facture implements JsonSerializable
     #[ORM\Column(length: 255)]
     private ?string $stat = null;
 
-    #[ORM\OneToMany(mappedBy: 'facture', targetEntity: ProductInFacture::class)]
+    #[ORM\OneToMany(mappedBy: 'facture', targetEntity: ProductInFacture::class, cascade: ['persist', 'remove'])]
     private Collection $contents;
 
     public function __construct()

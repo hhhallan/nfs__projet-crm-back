@@ -26,3 +26,4 @@ services:
     App\Service\Core\IClientService: '@App\Service\ClientService'
     App\Service\Core\IProspectService: '@App\Service\ProspectService'
     App\Service\Core\IUserService: '@App\Service\UserService'
+    App\Service\Core\IDevisService: '@App\Service\DevisService'

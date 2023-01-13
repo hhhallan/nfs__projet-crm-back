@@ -38,21 +38,34 @@ class ProspectController extends AbstractController
     #[Route('/prospect/commercial/{commercialId}', name: 'app_prospect_create', methods: 'POST')]
     public function createProspect(string $commercialId, Request $request): JsonResponse
     {
-        // TODO : a faire
-        throw new FeatureNotImplemented();
+        $body = json_decode($request->getContent(), true);
+        try {
+            $prospect = $this->prospectService->create($commercialId, $body);
+            return $this->json($prospect->jsonSerializeProspect());
+        } catch (Exception $e) {
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], 400);
+        }
     }
 
     #[Route('/prospect/{id}', name: 'app_prospect_details', methods: 'GET')]
     public function getById(string $id): JsonResponse
     {
-        // TODO : a faire
-        throw new FeatureNotImplemented();
+        try {
+            return $this->json($this->prospectService->read($id)->jsonSerializeProspect());
+        }catch (Exception $e) {
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], 400);
+        }
     }
 
     #[Route('/prospect/{id}', name: 'app_prospect_update', methods: 'PUT')]
     public function update(string $id, Request $request): JsonResponse
     {
-        // TODO : a faire
-        throw new FeatureNotImplemented();
+        $body = json_decode($request->getContent(), true);
+        try {
+            $prospect = $this->prospectService->update($id, $body);
+            return $this->json($prospect->jsonSerializeProspect());
+        } catch (Exception $e) {
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], 400);
+        }
     }
 }

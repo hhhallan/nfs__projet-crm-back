@@ -371,44 +371,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
         return $this;
     }
 
+    public function jsonSerializeProspect(): array
+    {
+        $res = $this->jsonSerialize();
+        $res['commercial'] = $this->getCommercial();
+        $res['devis'] = $this->getDevis()->toArray();
+        return $res;
+    }
+
+    public function jsonSerializeClient(): array
+    {
+        $res = $this->jsonSerialize();
+        $res['commercial'] = $this->getCommercial();
+        $res['devis'] = $this->getDevis()->toArray();
+        $res['factures'] = $this->getFactures()->toArray();
+        return $res;
+    }
+
+    public function jsonSerializeCommercial(): array
+    {
+        $res = $this->jsonSerialize();
+        $res['clients'] = $this->getClients()->toArray();
+        $res['devis_realise'] = $this->getDevisCommercial()->toArray();
+        $res['factures_realise'] = $this->getFacturesCommerical()->toArray();
+        return $res;
+    }
+
     public function jsonSerialize(): array
     {
         return array(
             'id' => $this->getId(),
             'email' => $this->getEmail(),
             'firstname' => $this->getFirstname(),
-            'lastname' => $this->getLastname()
+            'lastname' => $this->getLastname(),
+            'type' => ((in_array("ROLE_ADMIN", $this->getRoles())) ? 'ADMIN' :
+                (in_array("ROLE_COMMERCIAL", $this->getRoles()) ? 'COMMERCIAL' :
+                    ($this->isValidate() ? 'CLIENT' : 'PROSPECT')))
         );
-    }
-
-    public function jsonSerializeType(): array
-    {
-        $res = $this->jsonSerialize();
-        if (in_array("ROLE_ADMIN", $this->getRoles())) {
-            $res['type'] = 'ADMIN';
-        } else if (in_array("ROLE_COMMERCIAL", $this->getRoles())) {
-            $res['type'] = "COMMERCIAL";
-        } else if($this->isValidate()) {
-            $res['type'] = "CLIENT";
-        }else{
-            $res['type'] = "PROSPECT";
-        }
-        return $res;
-    }
-
-    public function jsonDetails(): array
-    {
-        $res = $this->jsonSerialize();
-        if (count($this->getClients()) > 0) {
-            $res['clients'] = array_map(function ($u) {
-                return $u->jsonSerializeType();
-            }, $this->getClients()->toArray());
-        }
-        if ($this->getCommercial() != null) {
-            $res['commercial'] = $this->getCommercial();
-            $res['devis'] = $this->getDevis()->toArray();
-            $res['factures'] = $this->getFactures()->toArray();
-        }
-        return $res;
     }
 }

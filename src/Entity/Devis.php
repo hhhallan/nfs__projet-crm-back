@@ -124,6 +124,18 @@ class Devis implements JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return array();
+        $contents = [];
+        foreach ($this->getContents() as $content) {
+            $contents[] = $content->jsonProduct();
+        }
+
+        return array(
+            'id' => $this->getId(),
+            'create_at' => $this->getCreateAt(),
+            'last_modification' => $this->getLastModification(),
+            'client' => $this->getClient()->jsonSerialize(),
+            'commercial' => $this->getCommercial()->jsonSerialize(),
+            'content' => $contents
+        );
     }
 }

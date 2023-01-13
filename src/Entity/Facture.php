@@ -136,8 +136,22 @@ class Facture implements JsonSerializable
 
         return $this;
     }
+
     public function jsonSerialize(): array
     {
-        return array();
+        $contents = [];
+        foreach ($this->getContents() as $content) {
+            $contents[] = $content->jsonProduct();
+        }
+
+        return array(
+            'id' => $this->getId(),
+            'create_at' => $this->getCreateAt(),
+            'last_modification' => $this->getLastModification(),
+            'stat' => $this->getStat(),
+            'client' => $this->getClient()->jsonSerialize(),
+            'commercial' => $this->getCommercial()->jsonSerialize(),
+            'content' => $contents
+        );
     }
 }

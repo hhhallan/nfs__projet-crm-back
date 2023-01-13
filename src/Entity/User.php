@@ -63,6 +63,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     #[ORM\OneToMany(mappedBy: 'source', targetEntity: Historic::class)]
     private Collection $historics;
 
+    #[ORM\Column(length: 40, nullable: true)]
+    private ?string $resetToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $resetExpire = null;
+
     public function __construct()
     {
         $this->clients = new ArrayCollection();
@@ -408,5 +414,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
                 (in_array("ROLE_COMMERCIAL", $this->getRoles()) ? 'COMMERCIAL' :
                     ($this->isValidate() ? 'CLIENT' : 'PROSPECT')))
         );
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $resetToken): self
+    {
+        $this->resetToken = $resetToken;
+
+        return $this;
+    }
+
+    public function getResetExpire(): ?\DateTimeImmutable
+    {
+        return $this->resetExpire;
+    }
+
+    public function setResetExpire(?\DateTimeImmutable $resetExpire): self
+    {
+        $this->resetExpire = $resetExpire;
+
+        return $this;
     }
 }

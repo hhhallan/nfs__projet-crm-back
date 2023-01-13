@@ -9,7 +9,7 @@ use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity(repositoryClass: ProductInFactureRepository::class)]
-class ProductInFacture implements JsonSerializable
+class ProductInFacture
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
@@ -67,8 +67,20 @@ class ProductInFacture implements JsonSerializable
         return $this;
     }
 
-    public function jsonSerialize(): array
+    public function jsonFacture(): array
     {
-        return array();
+        return array(
+            'quantity' => $this->getQuantity(),
+            'devis' => $this->getFacture()
+        );
+    }
+
+
+    public function jsonProduct(): array
+    {
+        return array(
+            'quantity' => $this->getQuantity(),
+            'product' => $this->getProduct()
+        );
     }
 }

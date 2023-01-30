@@ -24,11 +24,14 @@ class Historic implements JsonSerializable
     #[ORM\ManyToOne(inversedBy: 'historics')]
     private ?User $source = null;
 
-    #[ORM\Column(type: 'uuid')]
-    private ?Uuid $target_id = null;
+    #[ORM\Column]
+    private ?\DateTimeImmutable $date = null;
 
     #[ORM\Column(length: 255)]
     private ?string $message = null;
+
+    #[ORM\Column]
+    private array $Target = [];
 
     public function getId(): ?string
     {
@@ -59,18 +62,6 @@ class Historic implements JsonSerializable
         return $this;
     }
 
-    public function getTargetId(): ?Uuid
-    {
-        return $this->target_id;
-    }
-
-    public function setTargetId(Uuid $target_id): self
-    {
-        $this->target_id = $target_id;
-
-        return $this;
-    }
-
     public function getMessage(): ?string
     {
         return $this->message;
@@ -83,8 +74,31 @@ class Historic implements JsonSerializable
         return $this;
     }
 
+    public function getDate(): ?\DateTimeImmutable
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTimeImmutable $date): self
+    {
+        $this->date = $date;
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         return array();
+    }
+
+    public function getTarget(): array
+    {
+        return $this->Target;
+    }
+
+    public function setTarget(array $Target): self
+    {
+        $this->Target = $Target;
+
+        return $this;
     }
 }

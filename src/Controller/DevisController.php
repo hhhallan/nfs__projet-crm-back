@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Service\Core\IDevisService;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Log\Logger;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api')]
@@ -54,6 +56,16 @@ class DevisController extends AbstractController
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
 
+    }
+
+    #[Route('/devis/{id}', name: 'app_devis_read', methods: 'GET')]
+    public function read(string $id): JsonResponse
+    {
+        try {
+            return $this->json($this->devisService->read($id));
+        } catch (Exception $e) {
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
+        }
     }
 
     #[Route('/devis/{id}', name: 'app_devis_update', methods: 'PUT')]

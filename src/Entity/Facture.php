@@ -146,9 +146,9 @@ class Facture implements JsonSerializable
 
         return array(
             'id' => $this->getId(),
-            'create_at' => $this->getCreateAt(),
-            'last_modification' => $this->getLastModification(),
             'stat' => $this->getStat(),
+            'create_at' => $this->getCreateAt()->format("c"),
+            'last_modification' => $this->getLastModification()->format("c"),
             'client' => $this->getClient()->jsonSerialize(),
             'commercial' => $this->getCommercial()->jsonSerialize(),
             'content' => $contents

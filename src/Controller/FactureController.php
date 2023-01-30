@@ -66,4 +66,25 @@ class FactureController extends AbstractController
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
     }
+
+    #[Route('/facture/{id}', name: 'app_facture_update', methods: 'PUT')]
+    public function update(string $id, Request $request): JsonResponse
+    {
+        $body = json_decode($request->getContent(), true);
+        try {
+            return $this->json($this->factureService->update($id, $body));
+        } catch (Exception $e) {
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
+        }
+    }
+
+    #[Route('/facture/{id}/validate', name: 'app_facture_validate', methods: 'PUT')]
+    public function validate(string $id): JsonResponse
+    {
+        try {
+            return $this->json($this->factureService->changeState($id, "VALIDATE"));
+        } catch (Exception $e) {
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
+        }
+    }
 }

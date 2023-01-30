@@ -12,4 +12,6 @@ interface IFactureService
 
     public function create(string $devisId): Facture;
     public function read(string $id): Facture;
+    public function update(string $id, array $raw): Facture;
+    public function changeState(string $id, string $state): Facture;
 }

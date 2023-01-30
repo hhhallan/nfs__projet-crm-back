@@ -3,12 +3,14 @@
 namespace App\Service;
 
 use App\Entity\Facture;
+use App\Entity\ProductInDevis;
 use App\Entity\ProductInFacture;
 use App\Repository\DevisRepository;
 use App\Repository\FactureRepository;
 use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Service\Core\IFactureService;
+use App\Util;
 use DateTimeImmutable;
 use Exception;
 
@@ -84,10 +86,60 @@ class FactureService implements IFactureService
         }else throw new Exception("no devis found with that id", 404);
     }
 
+    /**
+     * @throws Exception
+     */
     public function read(string $id): Facture
     {
         $facture = $this->factureRepository->find($id);
         if($facture != null) {
+            return $facture;
+        } else throw new Exception("no facture found with that id", 404);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function update(string $id, array $raw): Facture
+    {
+        $facture = $this->factureRepository->find($id);
+        if($facture != null) {
+            if($facture->getStat() == "DRAFT") {
+
+                foreach ($facture->getContents() as $content) {
+                    $facture->removeContent($content);
+                }
+
+                foreach ($raw as $rawContent) {
+                    $quantity = Util::tryGet($rawContent, 'quantity');
+                    $product = $this->productRepository->find(Util::tryGet($rawContent, 'product_id'));
+
+                    if ($product != null && $quantity != null) {
+                        $productInFacture = new ProductInFacture();
+                        $productInFacture->setQuantity($quantity)
+                            ->setProduct($product);
+                        $facture->addContent($productInFacture);
+                    }
+                }
+
+                if (count($facture->getContents()) > 0) {
+                    $facture->setLastModification(new DateTimeImmutable('now'));
+                    $this->factureRepository->save($facture, true);
+                    return $facture;
+                } else throw new Exception('facture need some product and quantity', 400);
+            } else throw new Exception("this facture is not editable", 403);
+        } else throw new Exception("no facture found with that id", 404);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function changeState(string $id, string $state): Facture
+    {
+        $facture = $this->factureRepository->find($id);
+        if($facture != null) {
+            $facture->setStat($state);
+            $this->factureRepository->save($facture, true);
             return $facture;
         } else throw new Exception("no facture found with that id", 404);
     }

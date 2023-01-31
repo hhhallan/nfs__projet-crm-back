@@ -127,7 +127,7 @@ class History
             'date' => $this->getDate()->format('c'),
             'message' => $this->getMessage(),
             'target' => $this->getTarget(),
-            'source' => $this->getSource(),
+            'source' => $this->getSource()->jsonSerializeEmpty(),
         );
     }
 }

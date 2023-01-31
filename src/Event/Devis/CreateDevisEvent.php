@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Event;
+namespace App\Event\Devis;
 
 use App\Entity\Devis;
 use App\Entity\User;

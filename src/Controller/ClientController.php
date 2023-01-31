@@ -2,21 +2,26 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Event\Client\CreateClientEvent;
+use App\Event\Client\UpdateClientEvent;
 use App\Service\Core\IClientService;
-use Doctrine\ORM\Cache\Exception\FeatureNotImplemented;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route('/api')]
 class ClientController extends AbstractController
 {
     private readonly IClientService $clientService;
-    public function __construct(IClientService $clientService)
+    private readonly EventDispatcherInterface $dispatcher;
+    public function __construct(IClientService $clientService, EventDispatcherInterface $dispatcher)
     {
         $this->clientService = $clientService;
+        $this->dispatcher = $dispatcher;
     }
 
     #[Route('/client', name: 'app_client_list', methods: 'GET')]
@@ -39,7 +44,14 @@ class ClientController extends AbstractController
     public function createFromProspect(string $prospectId, Request $request): JsonResponse
     {
         try {
-            return $this->json($this->clientService->create($prospectId)->jsonSerializeClient());
+            $client = $this->clientService->create($prospectId);
+
+            /** @var User $user */
+            $user = $this->getUser();
+            $event = new CreateClientEvent($client, $user);
+            $this->dispatcher->dispatch($event, CreateClientEvent::NAME);
+
+            return $this->json($client->jsonSerialize());
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
@@ -49,7 +61,7 @@ class ClientController extends AbstractController
     public function getClientDetails(string $id): JsonResponse
     {
         try {
-            return $this->json($this->clientService->read($id)->jsonSerializeClient());
+            return $this->json($this->clientService->read($id)->jsonSerializeDetails());
         }catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
@@ -58,9 +70,16 @@ class ClientController extends AbstractController
     #[Route('/client/{id}', name: 'app_client_update', methods: 'PUT')]
     public function updateClient(string $id, Request $request): JsonResponse
     {
+        $body = json_decode($request->getContent(), true);
         try {
-            $body = json_decode($request->getContent(), true);
-            return $this->json($this->clientService->update($id, $body)->jsonSerializeClient());
+            $client = $this->clientService->update($id, $body);
+
+            /** @var User $user */
+            $user = $this->getUser();
+            $event = new UpdateClientEvent($client, $user);
+            $this->dispatcher->dispatch($event, UpdateClientEvent::NAME);
+
+            return $this->json($client->jsonSerializeDetails());
         }catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()],$e->getCode() != 0 ? $e->getCode() : 400);
         }

@@ -3,16 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Event\CreateDevisEvent;
-use App\Event\UpdateDevisEvent;
+use App\Event\Devis\CreateDevisEvent;
+use App\Event\Prospect\UpdateProspectEvent;
 use App\Service\Core\IDevisService;
 use App\Service\Core\IHistoryService;
 use Exception;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Log\Logger;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -100,8 +98,8 @@ class DevisController extends AbstractController
 
             /** @var User $user */
             $user = $this->getUser();
-            $event = new UpdateDevisEvent($devis, $user);
-            $this->dispatcher->dispatch($event, UpdateDevisEvent::NAME);
+            $event = new UpdateProspectEvent($devis, $user);
+            $this->dispatcher->dispatch($event, UpdateProspectEvent::NAME);
 
             return $this->json($devis);
         } catch (Exception $e) {

@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Service\AuthService;
 use App\Service\Core\IProductService;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

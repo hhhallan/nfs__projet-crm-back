@@ -3,15 +3,14 @@
 namespace App\EventSubscriber;
 
 use App\Entity\History;
-use App\Event\Devis\CreateDevisEvent;
-use App\Event\Devis\UpdateDevisEvent;
-use App\Event\Prospect\UpdateProspectEvent;
+use App\Event\Client\CreateClientEvent;
+use App\Event\Client\UpdateClientEvent;
 use App\Repository\HistoryRepository;
 use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class DevisListener implements EventSubscriberInterface
+class ClientListener implements EventSubscriberInterface
 {
     private HistoryRepository $historyRepository;
     public function __construct(HistoryRepository $historyRepository)
@@ -19,26 +18,26 @@ class DevisListener implements EventSubscriberInterface
         $this->historyRepository = $historyRepository;
     }
 
-    public function onDevisCreate(CreateDevisEvent $event): void {
+    public function onClientCreate(CreateClientEvent $event): void {
         $trace = new History();
         $trace->setDate(new DateTimeImmutable("now"))
-            ->setTargetId(Uuid::fromString($event->getDevis()->getId()))
-            ->setTarget($event->getDevis()->jsonSerialize())
+            ->setTargetId(Uuid::fromString($event->getClient()->getId()))
+            ->setTarget($event->getClient()->jsonSerializeEmpty())
             ->setSource($event->getRequester())
-            ->setHistoryType("DEVIS_CREATE")
-            ->setMessage("création du devis");
+            ->setHistoryType("CLIENT_CREATE")
+            ->setMessage("convertion du prospect en client");
 
         $this->historyRepository->save($trace, true);
     }
 
-    public function onDevisUpdate(UpdateDevisEvent $event): void {
+    public function onClientUpdate(UpdateClientEvent $event): void {
         $trace = new History();
         $trace->setDate(new DateTimeImmutable("now"))
-            ->setTargetId(Uuid::fromString($event->getDevis()->getId()))
-            ->setTarget($event->getDevis()->jsonSerialize())
+            ->setTargetId(Uuid::fromString($event->getClient()->getId()))
+            ->setTarget($event->getClient()->jsonSerializeEmpty())
             ->setSource($event->getRequester())
-            ->setHistoryType("DEVIS_UPDATE")
-            ->setMessage("modification du devis");
+            ->setHistoryType("CLIENT_UPDATE")
+            ->setMessage("modification du client");
 
         $this->historyRepository->save($trace, true);
     }
@@ -46,8 +45,8 @@ class DevisListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            CreateDevisEvent::NAME => 'onDevisCreate',
-            UpdateDevisEvent::NAME => 'onDevisUpdate'
+            CreateClientEvent::NAME => 'onClientCreate',
+            UpdateClientEvent::NAME => 'onClientUpdate',
         ];
     }
 }

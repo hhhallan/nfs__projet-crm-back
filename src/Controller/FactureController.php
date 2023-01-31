@@ -2,22 +2,30 @@
 
 namespace App\Controller;
 
-use App\Service\Core\IDevisService;
+use App\Entity\User;
+use App\Event\Facture\CreateFactureEvent;
+use App\Event\Facture\UpdateFactureEvent;
+use App\Event\Facture\ValidateFactureEvent;
 use App\Service\Core\IFactureService;
+use App\Service\Core\IHistoryService;
 use Exception;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route('/api')]
 class FactureController extends AbstractController
 {
     private readonly IFactureService $factureService;
-    public function __construct(IFactureService $factureService)
+    private readonly IHistoryService $historyService;
+    private readonly EventDispatcherInterface $dispatcher;
+    public function __construct(IFactureService $factureService, IHistoryService $historyService, EventDispatcherInterface $dispatcher)
     {
         $this->factureService = $factureService;
+        $this->historyService = $historyService;
+        $this->dispatcher = $dispatcher;
     }
 
     #[Route('/facture', name: 'app_facture_list', methods: 'GET')]
@@ -50,7 +58,14 @@ class FactureController extends AbstractController
     public function create(string $devisId, Request $request): JsonResponse
     {
         try {
-            return $this->json($this->factureService->create($devisId));
+            $facture = $this->factureService->create($devisId);
+
+            /** @var User $user */
+            $user = $this->getUser();
+            $event = new CreateFactureEvent($facture, $user);
+            $this->dispatcher->dispatch($event, CreateFactureEvent::NAME);
+
+            return $this->json($facture->jsonSerialize());
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
@@ -61,7 +76,13 @@ class FactureController extends AbstractController
     public function read(string $id, Request $request): JsonResponse
     {
         try {
-            return $this->json($this->factureService->read($id));
+            $facture = $this->factureService->read($id);
+
+            $json = $facture->jsonSerialize();
+            $json['history'] = array_map(function ($history) {
+                return $history->jsonFromTarget();
+            }, $this->historyService->getByTargetId($facture->getId()));
+            return $this->json($json);
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
@@ -72,7 +93,18 @@ class FactureController extends AbstractController
     {
         $body = json_decode($request->getContent(), true);
         try {
-            return $this->json($this->factureService->update($id, $body));
+            $facture = $this->factureService->update($id, $body);
+
+            /** @var User $user */
+            $user = $this->getUser();
+            $event = new UpdateFactureEvent($facture, $user);
+            $this->dispatcher->dispatch($event, UpdateFactureEvent::NAME);
+
+            $json = $facture->jsonSerialize();
+            $json['history'] = array_map(function ($history) {
+                return $history->jsonFromTarget();
+            }, $this->historyService->getByTargetId($facture->getId()));
+            return $this->json($json);
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
@@ -82,7 +114,18 @@ class FactureController extends AbstractController
     public function validate(string $id): JsonResponse
     {
         try {
-            return $this->json($this->factureService->changeState($id, "VALIDATE"));
+            $facture = $this->factureService->changeState($id, "VALIDATE");
+
+            /** @var User $user */
+            $user = $this->getUser();
+            $event = new ValidateFactureEvent($facture, $user);
+            $this->dispatcher->dispatch($event, ValidateFactureEvent::NAME);
+
+            $json = $facture->jsonSerialize();
+            $json['history'] = array_map(function ($history) {
+                return $history->jsonFromTarget();
+            }, $this->historyService->getByTargetId($facture->getId()));
+            return $this->json($json);
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }

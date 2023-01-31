@@ -22,6 +22,7 @@ class DevisListener implements EventSubscriberInterface
     public function onDevisCreate(CreateDevisEvent $event): void {
         $trace = new History();
         $trace->setDate(new DateTimeImmutable("now"))
+            ->setTargetId(Uuid::fromString($event->getDevis()->getId()))
             ->setTarget($event->getDevis()->jsonSerialize())
             ->setSource($event->getRequester())
             ->setHistoryType("DEVIS_CREATE")
@@ -33,6 +34,7 @@ class DevisListener implements EventSubscriberInterface
     public function onDevisUpdate(UpdateDevisEvent $event): void {
         $trace = new History();
         $trace->setDate(new DateTimeImmutable("now"))
+            ->setTargetId(Uuid::fromString($event->getDevis()->getId()))
             ->setTarget($event->getDevis()->jsonSerialize())
             ->setSource($event->getRequester())
             ->setHistoryType("DEVIS_UPDATE")

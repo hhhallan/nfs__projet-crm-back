@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Event\CreateDevisEvent;
 use App\Event\UpdateDevisEvent;
 use App\Service\Core\IDevisService;
+use App\Service\Core\IHistoryService;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,11 +20,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class DevisController extends AbstractController
 {
     private readonly IDevisService $devisService;
+    private readonly IHistoryService $historyService;
     private readonly EventDispatcherInterface $dispatcher;
-    public function __construct(IDevisService $devisService, EventDispatcherInterface $dispatcher)
+    public function __construct(IDevisService $devisService, EventDispatcherInterface $dispatcher, IHistoryService $historyService)
     {
         $this->devisService =$devisService;
         $this->dispatcher = $dispatcher;
+        $this->historyService = $historyService;
     }
 
     #[Route('/devis', name: 'app_devis', methods: 'GET')]
@@ -75,7 +78,14 @@ class DevisController extends AbstractController
     public function read(string $id): JsonResponse
     {
         try {
-            return $this->json($this->devisService->read($id));
+            $devis =  $this->devisService->read($id);
+            $json = $devis->jsonSerialize();
+
+            $json['history'] = array_map(function ($history) {
+                return $history->jsonFromTarget();
+            }, $this->historyService->getByTargetId($devis->getId()));
+
+            return $this->json($json);
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }

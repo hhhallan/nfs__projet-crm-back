@@ -4,12 +4,11 @@ namespace App\Entity;
 
 use App\Repository\HistoryRepository;
 use Doctrine\ORM\Mapping as ORM;
-use JsonSerializable;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity(repositoryClass: HistoryRepository::class)]
-class History implements JsonSerializable
+class History
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
@@ -20,7 +19,7 @@ class History implements JsonSerializable
     #[ORM\Column(length: 255)]
     private ?string $history_type = null;
 
-    #[ORM\ManyToOne(inversedBy: 'historys')]
+    #[ORM\ManyToOne(inversedBy: 'histories')]
     private ?User $source = null;
 
     #[ORM\Column]
@@ -87,11 +86,6 @@ class History implements JsonSerializable
         return $this;
     }
 
-    public function jsonSerialize(): array
-    {
-        return array();
-    }
-
     public function getTarget(): array
     {
         return $this->Target;
@@ -114,5 +108,26 @@ class History implements JsonSerializable
         $this->TargetId = $TargetId;
 
         return $this;
+    }
+
+    public function jsonFromSource(): array
+    {
+        return array(
+            'type' => $this->getHistoryType(),
+            'date' => $this->getDate()->format('c'),
+            'message' => $this->getMessage(),
+            'target' => $this->getTarget()
+        );
+    }
+
+    public function jsonFromTarget(): array
+    {
+        return array(
+            'type' => $this->getHistoryType(),
+            'date' => $this->getDate()->format('c'),
+            'message' => $this->getMessage(),
+            'target' => $this->getTarget(),
+            'source' => $this->getSource(),
+        );
     }
 }

@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20230130155235 extends AbstractMigration
+final class Version20230131121404 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -22,7 +22,7 @@ final class Version20230130155235 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE TABLE devis (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', client_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', commercial_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', create_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', last_modification DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', INDEX IDX_8B27C52B19EB6921 (client_id), INDEX IDX_8B27C52B7854071C (commercial_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE facture (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', client_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', commercial_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', create_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', last_modification DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', stat VARCHAR(255) NOT NULL, INDEX IDX_FE86641019EB6921 (client_id), INDEX IDX_FE8664107854071C (commercial_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE historic (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', source_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', historic_type VARCHAR(255) NOT NULL, date DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', message VARCHAR(255) NOT NULL, target JSON NOT NULL, INDEX IDX_AD52EF56953C1C61 (source_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE history (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', source_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', history_type VARCHAR(255) NOT NULL, date DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', message VARCHAR(255) NOT NULL, target JSON NOT NULL, target_id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', INDEX IDX_27BA704B953C1C61 (source_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE product (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', code_product VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, plateforme VARCHAR(255) NOT NULL, image VARCHAR(255) NOT NULL, price DOUBLE PRECISION NOT NULL, archived TINYINT(1) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE product_in_devis (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', product_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', devis_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', quantity INT NOT NULL, INDEX IDX_A62B1C24584665A (product_id), INDEX IDX_A62B1C241DEFADA (devis_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE product_in_facture (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', product_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', facture_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', quantity INT NOT NULL, INDEX IDX_265218D54584665A (product_id), INDEX IDX_265218D57F2DEE08 (facture_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
@@ -31,7 +31,7 @@ final class Version20230130155235 extends AbstractMigration
         $this->addSql('ALTER TABLE devis ADD CONSTRAINT FK_8B27C52B7854071C FOREIGN KEY (commercial_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE facture ADD CONSTRAINT FK_FE86641019EB6921 FOREIGN KEY (client_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE facture ADD CONSTRAINT FK_FE8664107854071C FOREIGN KEY (commercial_id) REFERENCES user (id)');
-        $this->addSql('ALTER TABLE historic ADD CONSTRAINT FK_AD52EF56953C1C61 FOREIGN KEY (source_id) REFERENCES user (id)');
+        $this->addSql('ALTER TABLE history ADD CONSTRAINT FK_27BA704B953C1C61 FOREIGN KEY (source_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE product_in_devis ADD CONSTRAINT FK_A62B1C24584665A FOREIGN KEY (product_id) REFERENCES product (id)');
         $this->addSql('ALTER TABLE product_in_devis ADD CONSTRAINT FK_A62B1C241DEFADA FOREIGN KEY (devis_id) REFERENCES devis (id)');
         $this->addSql('ALTER TABLE product_in_facture ADD CONSTRAINT FK_265218D54584665A FOREIGN KEY (product_id) REFERENCES product (id)');
@@ -46,7 +46,7 @@ final class Version20230130155235 extends AbstractMigration
         $this->addSql('ALTER TABLE devis DROP FOREIGN KEY FK_8B27C52B7854071C');
         $this->addSql('ALTER TABLE facture DROP FOREIGN KEY FK_FE86641019EB6921');
         $this->addSql('ALTER TABLE facture DROP FOREIGN KEY FK_FE8664107854071C');
-        $this->addSql('ALTER TABLE historic DROP FOREIGN KEY FK_AD52EF56953C1C61');
+        $this->addSql('ALTER TABLE history DROP FOREIGN KEY FK_27BA704B953C1C61');
         $this->addSql('ALTER TABLE product_in_devis DROP FOREIGN KEY FK_A62B1C24584665A');
         $this->addSql('ALTER TABLE product_in_devis DROP FOREIGN KEY FK_A62B1C241DEFADA');
         $this->addSql('ALTER TABLE product_in_facture DROP FOREIGN KEY FK_265218D54584665A');
@@ -54,7 +54,7 @@ final class Version20230130155235 extends AbstractMigration
         $this->addSql('ALTER TABLE user DROP FOREIGN KEY FK_8D93D6497854071C');
         $this->addSql('DROP TABLE devis');
         $this->addSql('DROP TABLE facture');
-        $this->addSql('DROP TABLE historic');
+        $this->addSql('DROP TABLE history');
         $this->addSql('DROP TABLE product');
         $this->addSql('DROP TABLE product_in_devis');
         $this->addSql('DROP TABLE product_in_facture');

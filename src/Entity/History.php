@@ -6,11 +6,10 @@ use App\Repository\HistoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
-use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity(repositoryClass: HistoryRepository::class)]
-class Historic implements JsonSerializable
+class History implements JsonSerializable
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
@@ -19,9 +18,9 @@ class Historic implements JsonSerializable
     private UuidInterface|string|null $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $historic_type = null;
+    private ?string $history_type = null;
 
-    #[ORM\ManyToOne(inversedBy: 'historics')]
+    #[ORM\ManyToOne(inversedBy: 'historys')]
     private ?User $source = null;
 
     #[ORM\Column]
@@ -33,19 +32,22 @@ class Historic implements JsonSerializable
     #[ORM\Column]
     private array $Target = [];
 
+    #[ORM\Column(type: 'uuid')]
+    private ?UuidInterface $TargetId = null;
+
     public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function getHistoricType(): ?string
+    public function getHistoryType(): ?string
     {
-        return $this->historic_type;
+        return $this->history_type;
     }
 
-    public function setHistoricType(string $historic_type): self
+    public function setHistoryType(string $history_type): self
     {
-        $this->historic_type = $historic_type;
+        $this->history_type = $history_type;
 
         return $this;
     }
@@ -98,6 +100,18 @@ class Historic implements JsonSerializable
     public function setTarget(array $Target): self
     {
         $this->Target = $Target;
+
+        return $this;
+    }
+
+    public function getTargetId(): ?string
+    {
+        return $this->TargetId;
+    }
+
+    public function setTargetId(UuidInterface $TargetId): self
+    {
+        $this->TargetId = $TargetId;
 
         return $this;
     }

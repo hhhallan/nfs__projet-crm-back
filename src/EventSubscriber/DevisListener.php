@@ -2,7 +2,7 @@
 
 namespace App\EventSubscriber;
 
-use App\Entity\Historic;
+use App\Entity\History;
 use App\Event\CreateDevisEvent;
 use App\Event\UpdateDevisEvent;
 use App\Repository\HistoryRepository;
@@ -20,22 +20,22 @@ class DevisListener implements EventSubscriberInterface
     }
 
     public function onDevisCreate(CreateDevisEvent $event): void {
-        $trace = new Historic();
+        $trace = new History();
         $trace->setDate(new DateTimeImmutable("now"))
             ->setTarget($event->getDevis()->jsonSerialize())
             ->setSource($event->getRequester())
-            ->setHistoricType("DEVIS_CREATE")
+            ->setHistoryType("DEVIS_CREATE")
             ->setMessage("création du devis");
 
         $this->historyRepository->save($trace, true);
     }
 
     public function onDevisUpdate(UpdateDevisEvent $event): void {
-        $trace = new Historic();
+        $trace = new History();
         $trace->setDate(new DateTimeImmutable("now"))
             ->setTarget($event->getDevis()->jsonSerialize())
             ->setSource($event->getRequester())
-            ->setHistoricType("DEVIS_UPDATE")
+            ->setHistoryType("DEVIS_UPDATE")
             ->setMessage("modification du devis");
 
         $this->historyRepository->save($trace, true);

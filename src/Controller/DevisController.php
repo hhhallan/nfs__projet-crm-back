@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Event\CreateDevisEvent;
+use App\Event\UpdateDevisEvent;
 use App\Service\Core\IDevisService;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -10,14 +13,17 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Log\Logger;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route('/api')]
 class DevisController extends AbstractController
 {
     private readonly IDevisService $devisService;
-    public function __construct(IDevisService $devisService)
+    private readonly EventDispatcherInterface $dispatcher;
+    public function __construct(IDevisService $devisService, EventDispatcherInterface $dispatcher)
     {
         $this->devisService =$devisService;
+        $this->dispatcher = $dispatcher;
     }
 
     #[Route('/devis', name: 'app_devis', methods: 'GET')]
@@ -46,12 +52,19 @@ class DevisController extends AbstractController
         }
     }
 
-    #[Route('/devis', name: 'app_devis_create', methods: 'POST')]
+    #[Route('/devis', name: 'app_devis_create', methods: 'POST', )]
     public function create(Request $request): JsonResponse
     {
         $body = json_decode($request->getContent(), true);
         try {
-            return $this->json($this->devisService->create($body));
+            $devis = $this->devisService->create($body);
+
+            /** @var User $user */
+            $user = $this->getUser();
+            $event = new CreateDevisEvent($devis, $user);
+            $this->dispatcher->dispatch($event, CreateDevisEvent::NAME);
+
+            return $this->json($devis);
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
@@ -73,7 +86,14 @@ class DevisController extends AbstractController
     {
         $body = json_decode($request->getContent(), true);
         try {
-            return $this->json($this->devisService->update($id, $body));
+            $devis = $this->devisService->update($id, $body);
+
+            /** @var User $user */
+            $user = $this->getUser();
+            $event = new UpdateDevisEvent($devis, $user);
+            $this->dispatcher->dispatch($event, UpdateDevisEvent::NAME);
+
+            return $this->json($devis);
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }

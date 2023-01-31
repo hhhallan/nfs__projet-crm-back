@@ -10,7 +10,6 @@ use App\Repository\UserRepository;
 use App\Service\Core\IDevisService;
 use App\Util;
 use DateTimeImmutable;
-use Doctrine\ORM\Cache\Exception\FeatureNotImplemented;
 use Exception;
 
 class DevisService implements IDevisService

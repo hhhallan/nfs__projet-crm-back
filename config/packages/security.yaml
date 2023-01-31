@@ -29,10 +29,31 @@ security:
             pattern: ^/api
             stateless: true
             jwt: ~
+            access_denied_handler: App\Security\AccessDeniedHandler
+            entry_point: App\Security\UnauthorizedHandler
 
     access_control:
-        - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS, methods: [POST]}
+        - { path: ^/api/reset, roles: PUBLIC_ACCESS, methods: [PUT]}
+        - { path: ^/api/changePwd, roles: PUBLIC_ACCESS, methods: [PUT]}
+        - { path: ^/api/product, roles: ROLE_USER, methods: [GET]}
+        - { path: ^/api/product, roles: ROLE_ADMIN, methods: [POST, PUT, DELETE]}
+        - { path: ^/api/devis/commercial, roles: ROLE_COMMERCIAL, methods: [GET]}
+        - { path: ^/api/devis/client, roles: ROLE_USER, methods: [GET]}
+        - { path: ^/api/devis/.*, roles: ROLE_COMMERCIAL, methods: [PUT]}
+        - { path: ^/api/devis/.*, roles: ROLE_USER, methods: [GET]}
+        - { path: ^/api/devis, roles: ROLE_ADMIN, methods: [GET]}
+        - { path: ^/api/devis, roles: ROLE_COMMERCIAL, methods: [POST]}
+        - { path: ^/api/prospect, roles: ROLE_COMMERCIAL}
+        - { path: ^/api/client, roles: ROLE_COMMERCIAL}
+        - { path: ^/api/user, roles: ROLE_ADMIN}
+        - { path: ^/api/facture/commercial, roles: ROLE_COMMERCIAL, methods: [ GET ] }
+        - { path: ^/api/facture/client, roles: ROLE_USER, methods: [ GET ] }
+        - { path: ^/api/facture/.*, roles: ROLE_COMMERCIAL, methods: [ PUT ] }
+        - { path: ^/api/facture/.*, roles: ROLE_USER, methods: [ GET ] }
+        - { path: ^/api/facture, roles: ROLE_ADMIN, methods: [ GET ] }
+        - { path: ^/api/facture, roles: ROLE_COMMERCIAL, methods: [ POST ] }
+        - { path: ^/api, roles: ROLE_USER}
 
     role_hierarchy:
         ROLE_ADMIN: [ROLE_COMMERCIAL, ROLE_USER]

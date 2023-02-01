@@ -51,7 +51,7 @@ class FactureService implements IFactureService
     {
         $commercial = $this->userRepository->find($id);
         if($commercial != null) {
-            return $commercial->getFacturesCommerical()->toArray();
+            return $commercial->getFacturesCommercial()->toArray();
         } else throw new Exception("no commercial found with that id", 404);
     }
 

@@ -2,21 +2,26 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Event\Prospect\CreateProspectEvent;
+use App\Event\Prospect\UpdateProspectEvent;
 use App\Service\Core\IProspectService;
-use Doctrine\ORM\Cache\Exception\FeatureNotImplemented;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route('/api')]
 class ProspectController extends AbstractController
 {
     private readonly IProspectService $prospectService;
-    public function __construct(IProspectService $prospectService)
+    private readonly EventDispatcherInterface $dispatcher;
+    public function __construct(IProspectService $prospectService, EventDispatcherInterface $dispatcher)
     {
         $this->prospectService = $prospectService;
+        $this->dispatcher = $dispatcher;
     }
 
     #[Route('/prospect', name: 'app_prospect_list', methods: 'GET')]
@@ -36,12 +41,18 @@ class ProspectController extends AbstractController
     }
 
     #[Route('/prospect/commercial/{commercialId}', name: 'app_prospect_create', methods: 'POST')]
-    public function createProspect(string $commercialId, Request $request): JsonResponse
+    public function create(string $commercialId, Request $request): JsonResponse
     {
         $body = json_decode($request->getContent(), true);
         try {
             $prospect = $this->prospectService->create($commercialId, $body);
-            return $this->json($prospect->jsonSerializeProspect());
+
+            /** @var User $user */
+            $user = $this->getUser();
+            $event = new CreateProspectEvent($prospect, $user);
+            $this->dispatcher->dispatch($event, CreateProspectEvent::NAME);
+
+            return $this->json($prospect->jsonSerialize());
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
@@ -51,7 +62,7 @@ class ProspectController extends AbstractController
     public function getById(string $id): JsonResponse
     {
         try {
-            return $this->json($this->prospectService->read($id)->jsonSerializeProspect());
+            return $this->json($this->prospectService->read($id)->jsonSerializeDetails());
         }catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
@@ -63,7 +74,13 @@ class ProspectController extends AbstractController
         $body = json_decode($request->getContent(), true);
         try {
             $prospect = $this->prospectService->update($id, $body);
-            return $this->json($prospect->jsonSerializeProspect());
+
+            /** @var User $user */
+            $user = $this->getUser();
+            $event = new UpdateProspectEvent($prospect, $user);
+            $this->dispatcher->dispatch($event, UpdateProspectEvent::NAME);
+
+            return $this->json($prospect->jsonSerializeDetails());
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }

@@ -133,8 +133,8 @@ class Devis implements JsonSerializable
             'id' => $this->getId(),
             'create_at' => $this->getCreateAt()->format("c"),
             'last_modification' => $this->getLastModification()->format("c"),
-            'client' => $this->getClient()->jsonSerialize(),
-            'commercial' => $this->getCommercial()->jsonSerialize(),
+            'client' => $this->getClient()->jsonSerializeEmpty(),
+            'commercial' => $this->getCommercial()->jsonSerializeEmpty(),
             'content' => $contents
         );
     }

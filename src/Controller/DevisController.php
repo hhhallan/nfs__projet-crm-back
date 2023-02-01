@@ -2,22 +2,29 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Event\Devis\CreateDevisEvent;
+use App\Event\Prospect\UpdateProspectEvent;
 use App\Service\Core\IDevisService;
+use App\Service\Core\IHistoryService;
 use Exception;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Log\Logger;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route('/api')]
 class DevisController extends AbstractController
 {
     private readonly IDevisService $devisService;
-    public function __construct(IDevisService $devisService)
+    private readonly IHistoryService $historyService;
+    private readonly EventDispatcherInterface $dispatcher;
+    public function __construct(IDevisService $devisService, EventDispatcherInterface $dispatcher, IHistoryService $historyService)
     {
         $this->devisService =$devisService;
+        $this->dispatcher = $dispatcher;
+        $this->historyService = $historyService;
     }
 
     #[Route('/devis', name: 'app_devis', methods: 'GET')]
@@ -46,12 +53,19 @@ class DevisController extends AbstractController
         }
     }
 
-    #[Route('/devis', name: 'app_devis_create', methods: 'POST')]
+    #[Route('/devis', name: 'app_devis_create', methods: 'POST', )]
     public function create(Request $request): JsonResponse
     {
         $body = json_decode($request->getContent(), true);
         try {
-            return $this->json($this->devisService->create($body));
+            $devis = $this->devisService->create($body);
+
+            /** @var User $user */
+            $user = $this->getUser();
+            $event = new CreateDevisEvent($devis, $user);
+            $this->dispatcher->dispatch($event, CreateDevisEvent::NAME);
+
+            return $this->json($devis);
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
@@ -62,7 +76,14 @@ class DevisController extends AbstractController
     public function read(string $id): JsonResponse
     {
         try {
-            return $this->json($this->devisService->read($id));
+            $devis =  $this->devisService->read($id);
+            $json = $devis->jsonSerialize();
+
+            $json['history'] = array_map(function ($history) {
+                return $history->jsonFromTarget();
+            }, $this->historyService->getByTargetId($devis->getId()));
+
+            return $this->json($json);
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }
@@ -73,7 +94,14 @@ class DevisController extends AbstractController
     {
         $body = json_decode($request->getContent(), true);
         try {
-            return $this->json($this->devisService->update($id, $body));
+            $devis = $this->devisService->update($id, $body);
+
+            /** @var User $user */
+            $user = $this->getUser();
+            $event = new UpdateProspectEvent($devis, $user);
+            $this->dispatcher->dispatch($event, UpdateProspectEvent::NAME);
+
+            return $this->json($devis);
         } catch (Exception $e) {
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() != 0 ? $e->getCode() : 400);
         }

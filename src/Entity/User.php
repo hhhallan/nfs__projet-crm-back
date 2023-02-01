@@ -58,10 +58,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     private Collection $factures;
 
     #[ORM\OneToMany(mappedBy: 'commercial', targetEntity: Facture::class)]
-    private Collection $facturesCommerical;
+    private Collection $facturesCommercial;
 
-    #[ORM\OneToMany(mappedBy: 'source', targetEntity: Historic::class)]
-    private Collection $historics;
+    #[ORM\OneToMany(mappedBy: 'source', targetEntity: History::class)]
+    private Collection $histories;
 
     #[ORM\Column(length: 40, nullable: true)]
     private ?string $resetToken = null;
@@ -75,8 +75,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
         $this->devis = new ArrayCollection();
         $this->devisCommercial = new ArrayCollection();
         $this->factures = new ArrayCollection();
-        $this->facturesCommerical = new ArrayCollection();
-        $this->historics = new ArrayCollection();
+        $this->facturesCommercial = new ArrayCollection();
+        $this->histories = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -320,15 +320,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     /**
      * @return Collection<int, Facture>
      */
-    public function getFacturesCommerical(): Collection
+    public function getFacturesCommercial(): Collection
     {
-        return $this->facturesCommerical;
+        return $this->facturesCommercial;
     }
 
     public function addFacturesCommerical(Facture $facturesCommerical): self
     {
-        if (!$this->facturesCommerical->contains($facturesCommerical)) {
-            $this->facturesCommerical->add($facturesCommerical);
+        if (!$this->facturesCommercial->contains($facturesCommerical)) {
+            $this->facturesCommercial->add($facturesCommerical);
             $facturesCommerical->setCommercial($this);
         }
 
@@ -337,7 +337,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 
     public function removeFacturesCommerical(Facture $facturesCommerical): self
     {
-        if ($this->facturesCommerical->removeElement($facturesCommerical)) {
+        if ($this->facturesCommercial->removeElement($facturesCommerical)) {
             // set the owning side to null (unless already changed)
             if ($facturesCommerical->getCommercial() === $this) {
                 $facturesCommerical->setCommercial(null);
@@ -348,72 +348,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     }
 
     /**
-     * @return Collection<int, Historic>
+     * @return Collection<int, History>
      */
-    public function getHistorics(): Collection
+    public function getHistories(): Collection
     {
-        return $this->historics;
+        return $this->histories;
     }
 
-    public function addHistoric(Historic $historic): self
+    public function addHistoric(History $history): self
     {
-        if (!$this->historics->contains($historic)) {
-            $this->historics->add($historic);
-            $historic->setSource($this);
+        if (!$this->histories->contains($history)) {
+            $this->histories->add($history);
+            $history->setSource($this);
         }
 
         return $this;
     }
 
-    public function removeHistoric(Historic $historic): self
+    public function removeHistory(History $history): self
     {
-        if ($this->historics->removeElement($historic)) {
+        if ($this->histories->removeElement($history)) {
             // set the owning side to null (unless already changed)
-            if ($historic->getSource() === $this) {
-                $historic->setSource(null);
+            if ($history->getSource() === $this) {
+                $history->setSource(null);
             }
         }
 
         return $this;
-    }
-
-    public function jsonSerializeProspect(): array
-    {
-        $res = $this->jsonSerialize();
-        $res['commercial'] = $this->getCommercial();
-        $res['devis'] = $this->getDevis()->toArray();
-        return $res;
-    }
-
-    public function jsonSerializeClient(): array
-    {
-        $res = $this->jsonSerialize();
-        $res['commercial'] = $this->getCommercial();
-        $res['devis'] = $this->getDevis()->toArray();
-        $res['factures'] = $this->getFactures()->toArray();
-        return $res;
-    }
-
-    public function jsonSerializeCommercial(): array
-    {
-        $res = $this->jsonSerialize();
-        $res['clients'] = $this->getClients()->toArray();
-        $res['devis_realise'] = $this->getDevisCommercial()->toArray();
-        $res['factures_realise'] = $this->getFacturesCommerical()->toArray();
-        return $res;
-    }
-
-    public function jsonSerialize(): array
-    {
-        return array(
-            'id' => $this->getId(),
-            'email' => $this->getEmail(),
-            'firstname' => $this->getFirstname(),
-            'lastname' => $this->getLastname(),
-            'type' => ((in_array("ROLE_ADMIN", $this->getRoles())) ? 'ADMIN' :
-                (in_array("ROLE_COMMERCIAL", $this->getRoles()) ? 'COMMERCIAL' :
-                    ($this->isValidate() ? 'CLIENT' : 'PROSPECT')))
-        );
     }
 
     public function getResetToken(): ?string
@@ -438,5 +399,62 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
         $this->resetExpire = $resetExpire;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $res = array(
+            'id' => $this->getId(),
+            'email' => $this->getEmail(),
+            'firstname' => $this->getFirstname(),
+            'lastname' => $this->getLastname(),
+        );
+
+        if(in_array('ROLE_ADMIN', $this->getRoles())) {
+            $res['type'] = "ADMIN";
+        } else if(in_array('ROLE_COMMERCIAL', $this->getRoles())) {
+            $res['type'] = "COMMERCIAL";
+            $res['clients'] = $this->getClients()->toArray();
+            $res['devis_realise'] = $this->getDevisCommercial()->toArray();
+            $res['factures_realise'] = $this->getFacturesCommercial()->toArray();
+        } else if($this->isValidate()) {
+            $res['type'] = "CLIENT";
+            $res['commercial'] = $this->getCommercial();
+            $res['devis'] = $this->getDevis()->toArray();
+            $res['factures'] = $this->getFactures()->toArray();
+        } else {
+            $res['type'] = "PROSPECT";
+            $res['commercial'] = $this->getCommercial();
+            $res['devis'] = $this->getDevis()->toArray();
+        }
+        return $res;
+    }
+
+    public function jsonSerializeDetails(): array
+    {
+        $res = $this->jsonSerialize();
+        $res['history'] = $this->getHistories()->toArray();
+        return $res;
+    }
+
+    public function jsonSerializeEmpty(): array
+    {
+        $res = array(
+            'id' => $this->getId(),
+            'email' => $this->getEmail(),
+            'firstname' => $this->getFirstname(),
+            'lastname' => $this->getLastname(),
+        );
+
+        if(in_array('ROLE_ADMIN', $this->getRoles())) {
+            $res['type'] = "ADMIN";
+        } else if(in_array('ROLE_COMMERCIAL', $this->getRoles())) {
+            $res['type'] = "COMMERCIAL";
+        } else if($this->isValidate()) {
+            $res['type'] = "CLIENT";
+        } else {
+            $res['type'] = "PROSPECT";
+        }
+        return $res;
     }
 }

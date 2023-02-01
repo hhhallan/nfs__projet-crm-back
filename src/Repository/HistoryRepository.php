@@ -2,26 +2,26 @@
 
 namespace App\Repository;
 
-use App\Entity\Historic;
+use App\Entity\History;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Historic>
+ * @extends ServiceEntityRepository<History>
  *
- * @method Historic|null find($id, $lockMode = null, $lockVersion = null)
- * @method Historic|null findOneBy(array $criteria, array $orderBy = null)
- * @method Historic[]    findAll()
- * @method Historic[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method History|null find($id, $lockMode = null, $lockVersion = null)
+ * @method History|null findOneBy(array $criteria, array $orderBy = null)
+ * @method History[]    findAll()
+ * @method History[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class HistoryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Historic::class);
+        parent::__construct($registry, History::class);
     }
 
-    public function save(Historic $entity, bool $flush = false): void
+    public function save(History $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -30,7 +30,7 @@ class HistoryRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(Historic $entity, bool $flush = false): void
+    public function remove(History $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 

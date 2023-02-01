@@ -20,15 +20,14 @@ class UserController extends AbstractController
     public function list(): JsonResponse
     {
         $users = $this->userService->getAll();
-        $json = array_map(function ($u) {
-            $cleanU = $u->jsonSerialize();
-            if($cleanU['type'] == "COMMERCIAL") {
-                return $u->jsonSerializeCommercial();
-            }else if($cleanU['type'] == "CLIENT") {
-                return $u->jsonSerializeClient();
-            }
-            return $cleanU;
-        }, $users);
+        return $this->json($users);
+    }
+
+    #[Route('/user/{id}', name: 'app_user_read')]
+    public function read(string $id): JsonResponse
+    {
+        $user = $this->userService->getById($id);
+        $json = $user->jsonSerializeDetails();
         return $this->json($json);
     }
 }

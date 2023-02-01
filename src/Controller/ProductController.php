@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Service\AuthService;
 use App\Service\Core\IProductService;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,12 +13,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProductController extends AbstractController
 {
     private readonly IProductService $productService;
-    private readonly AuthService $authService;
-
-    public function __construct(IProductService $productService, AuthService $authService)
+    public function __construct(IProductService $productService)
     {
         $this->productService = $productService;
-        $this->authService = $authService;
     }
 
     #[Route('/product', name: 'app_product_list', methods: 'GET')]

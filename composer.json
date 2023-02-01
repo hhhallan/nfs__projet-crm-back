@@ -14,6 +14,7 @@
         "jms/serializer-bundle": "^5.0",
         "lexik/jwt-authentication-bundle": "^2.16",
         "ramsey/uuid-doctrine": "^1.8",
+        "stripe/stripe-php": "^10.4",
         "symfony/console": "6.2.*",
         "symfony/dotenv": "6.2.*",
         "symfony/event-dispatcher": "6.2.*",

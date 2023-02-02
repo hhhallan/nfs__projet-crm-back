@@ -143,4 +143,23 @@ class FactureService implements IFactureService
             return $facture;
         } else throw new Exception("no facture found with that id", 404);
     }
+
+    /**
+     * @throws Exception
+     */
+    //envoie de mail de la facture en pdf au client
+    public function sendMail(string $id): Facture
+    {
+        $facture = $this->factureRepository->find($id);
+        if($facture != null) {
+            $client = $facture->getClient();
+            $email = $client->getEmail();
+            $name = $client->getFirstName() . " " . $client->getLastName();
+            $subject = "Facture n°" . $facture->getId();
+            $message = "Bonjour " . $name . ",\n\nVous trouverez ci-joint la facture n°" . $facture->getId() . ".\n\nCordialement,\n" . $facture->getCommercial()->getFirstName() . " " . $facture->getCommercial()->getLastName();
+            $pdf = $this->factureRepository->generatePdf($facture);
+            $this->factureRepository->sendMail($email, $name, $subject, $message, $pdf);
+            return $facture;
+        } else throw new Exception("no facture found with that id", 404);
+    }
 }

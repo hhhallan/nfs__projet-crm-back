@@ -13,16 +13,7 @@ use Stripe;
 #[Route('/api')]
 class StripeController extends AbstractController
 {
-    #[Route('/stripe', name: 'app_stripe')]
-    public function index(): JsonResponse
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'stripe_key' => $_ENV["STRIPE_KEY"],
-        ]);
-    }
-
-
+    
     #[Route('/stripe/create-payment/{id}', name: 'app_stripe_payment', methods: ['POST'])]
     public function createPayment(Request $request, $id, FactureService $factureService)
     {
@@ -75,6 +66,9 @@ class StripeController extends AbstractController
         }
 
         $factureService->changeState($id, 'PAYED');
+
+        //envoie du mail avec la facture en pdf en pièce jointe au client
+        $factureService->sendMail($id);
 
         return new JsonResponse([
             'message' => 'Payment Successful!'

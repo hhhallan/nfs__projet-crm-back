@@ -414,17 +414,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
             $res['type'] = "ADMIN";
         } else if(in_array('ROLE_COMMERCIAL', $this->getRoles())) {
             $res['type'] = "COMMERCIAL";
-            $res['clients'] = $this->getClients()->toArray();
+            $res['clients'] = array_map(function ($u) { return $u->jsonSerializeEmpty();}, $this->getClients()->toArray());
             $res['devis_realise'] = $this->getDevisCommercial()->toArray();
             $res['factures_realise'] = $this->getFacturesCommercial()->toArray();
         } else if($this->isValidate()) {
             $res['type'] = "CLIENT";
-            $res['commercial'] = $this->getCommercial();
+            $res['commercial'] = $this->getCommercial()->jsonSerializeEmpty();
             $res['devis'] = $this->getDevis()->toArray();
             $res['factures'] = $this->getFactures()->toArray();
         } else {
             $res['type'] = "PROSPECT";
-            $res['commercial'] = $this->getCommercial();
+            $res['commercial'] = $this->getCommercial()->jsonSerializeEmpty();
             $res['devis'] = $this->getDevis()->toArray();
         }
         return $res;

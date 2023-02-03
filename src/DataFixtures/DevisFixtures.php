@@ -34,9 +34,9 @@ class DevisFixtures extends Fixture implements DependentFixtureInterface
         $clients = array_merge($this->clientService->getAll(), $this->prospectService->getAll());
         $commercials = $this->commercialService->getAll();
 
-        $nbDevis = 20;
+        $nbDevis = 400;
         for ($i = 0; $i < $nbDevis; $i++) {
-            $date = new DateTimeImmutable("-".rand(1,8)." days");
+            $date = new DateTimeImmutable("-".rand(10,300)." days");
             $devis = new Devis();
             $devis->setCommercial($commercials[array_rand($commercials)])
                 ->setClient($clients[array_rand($clients)])

@@ -35,9 +35,9 @@ class FactureFixtures extends Fixture implements DependentFixtureInterface
         $clients = array_merge($this->clientService->getAll(), $this->prospectService->getAll());
         $commercials = $this->commercialService->getAll();
 
-        $nbFacture = 20;
+        $nbFacture = 400;
         for ($i = 0; $i < $nbFacture; $i++) {
-            $date = new DateTimeImmutable("-".rand(1,8)." days");
+            $date = new DateTimeImmutable("-".rand(10,200)." days");
             $facture = new Facture();
             $facture->setStat($states[rand(0,2)])
                 ->setCommercial($commercials[array_rand($commercials)])

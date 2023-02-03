@@ -57,7 +57,7 @@ class AuthService
 
                 //Recipients
                 $mail->setFrom('your_email@example.com', 'Mailer');
-                $mail->addAddress("maxkb02@gmail.com", 'Joe User');                      // Add a recipient
+                $mail->addAddress($email, 'Joe User');                      // Add a recipient
 
                 // Content
                 $mail->CharSet = 'UTF-8';

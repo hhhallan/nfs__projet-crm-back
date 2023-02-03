@@ -13,6 +13,7 @@ use App\Service\Core\IFactureService;
 use App\Util;
 use DateTimeImmutable;
 use Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 
 class FactureService implements IFactureService
 {
@@ -39,7 +40,7 @@ class FactureService implements IFactureService
     public function getByClient(string $id): array
     {
         $client = $this->userRepository->find($id);
-        if($client != null) {
+        if ($client != null) {
             return $client->getFactures()->toArray();
         } else throw new Exception("no client found with that id", 404);
     }
@@ -50,7 +51,7 @@ class FactureService implements IFactureService
     public function getByCommercial(string $id): array
     {
         $commercial = $this->userRepository->find($id);
-        if($commercial != null) {
+        if ($commercial != null) {
             return $commercial->getFacturesCommerical()->toArray();
         } else throw new Exception("no commercial found with that id", 404);
     }
@@ -61,7 +62,7 @@ class FactureService implements IFactureService
     public function create(string $devisId): Facture
     {
         $devis = $this->devisRepository->find($devisId);
-        if($devis != null) {
+        if ($devis != null) {
             $date = new DateTimeImmutable('now');
 
             $facture = new Facture();
@@ -79,11 +80,11 @@ class FactureService implements IFactureService
                 $facture->addContent($factureContent);
             }
 
-            if(count($facture->getContents()) > 0) {
+            if (count($facture->getContents()) > 0) {
                 $this->factureRepository->save($facture, true);
                 return $facture;
-            }else throw new Exception('facture need some product and quantity', 400);
-        }else throw new Exception("no devis found with that id", 404);
+            } else throw new Exception('facture need some product and quantity', 400);
+        } else throw new Exception("no devis found with that id", 404);
     }
 
     /**
@@ -92,7 +93,7 @@ class FactureService implements IFactureService
     public function read(string $id): Facture
     {
         $facture = $this->factureRepository->find($id);
-        if($facture != null) {
+        if ($facture != null) {
             return $facture;
         } else throw new Exception("no facture found with that id", 404);
     }
@@ -103,8 +104,8 @@ class FactureService implements IFactureService
     public function update(string $id, array $raw): Facture
     {
         $facture = $this->factureRepository->find($id);
-        if($facture != null) {
-            if($facture->getStat() == "DRAFT") {
+        if ($facture != null) {
+            if ($facture->getStat() == "DRAFT") {
 
                 foreach ($facture->getContents() as $content) {
                     $facture->removeContent($content);
@@ -137,7 +138,43 @@ class FactureService implements IFactureService
     public function changeState(string $id, string $state): Facture
     {
         $facture = $this->factureRepository->find($id);
-        if($facture != null) {
+        $user = $facture->getClient();
+        //check if state is DRAFT
+        if ($facture->getStat() == "DRAFT") {
+            if ($state == "DRAFT") {
+                throw new Exception("facture is already in draft state", 400);
+            } else {
+                $mail = new PHPMailer(true);
+                try {
+                    //Server settings
+                    $mail->isSMTP();                                            // Send using SMTP
+                    $mail->Host       = 'sandbox.smtp.mailtrap.io';                       // Set the SMTP server to send through
+                    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                    $mail->Username   = $_ENV['USERNAME_MAIL'];                 // SMTP username
+                    $mail->Password   = $_ENV['PASSWORD_MAIL'];                 // SMTP password
+                    $mail->Port       = 2525;                                    // TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS` above
+
+                    //Recipients
+                    $mail->setFrom('your_email@example.com', 'Mailer');
+                    $mail->addAddress($user->getEmail(), 'Joe User');                      // Add a recipient
+
+                    // Content
+                    $mail->CharSet = 'UTF-8';
+                    $mail->isHTML(true);
+                    $mail->Subject = "Facture Validée";
+                    $mail->Body    = "Votre facture a été validée";
+                    $mail->AltBody = "Votre facture a été validée";
+
+
+                    $mail->send();
+                    echo 'Message has been sent';
+                } catch (Exception $e) {
+                    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                }
+            }
+        }
+
+        if ($facture != null) {
             $facture->setStat($state);
             $this->factureRepository->save($facture, true);
             return $facture;
@@ -151,7 +188,7 @@ class FactureService implements IFactureService
     public function sendMail(string $id): Facture
     {
         $facture = $this->factureRepository->find($id);
-        if($facture != null) {
+        if ($facture != null) {
             $client = $facture->getClient();
             $email = $client->getEmail();
             $name = $client->getFirstName() . " " . $client->getLastName();
